@@ -1,4 +1,4 @@
-package kafka
+package kafka-utils
 
 import ( 
         "github.com/Shopify/sarama"
@@ -23,7 +23,7 @@ func newProducer(brokerList []string) *producer {
     panic(err)
   }
 
-  return &producer{ producer : &syncProducer }
+  return &producer{ syncProducer : &syncProducer }
 }
 
 func (this *producer) SendEventToTopic( event interface{}, topic string ) error {
@@ -38,7 +38,7 @@ func (this *producer) SendEventToTopic( event interface{}, topic string ) error 
   log.Println(string(json))
 
   // send event
-  _, _, err = this.syncProducer.SendMessage(&sarama.ProducerMessage{
+  _, _, err = this.syncProducer.SendMessage(&sarama.ProducerMessage {
       Topic: topic,
       Value: sarama.StringEncoder(reflect.TypeOf(event).Name() + "," + string(json)),
     })
