@@ -13,7 +13,7 @@ type producer struct {
 }
 
 // Constructor
-func newProducer(brokerList []string) *producer {
+func NewProducer(brokerList []string) *producer {
   config := sarama.NewConfig()
   config.Producer.RequiredAcks = sarama.WaitForAll 
   config.Producer.Retry.Max = 10    
