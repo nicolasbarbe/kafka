@@ -51,10 +51,8 @@ func (this *Producer) SendEventToTopic( event interface{}, topic string ) error 
   return nil
 }
 
-
-
-// defer func() {
-//   if err := Producer.Close(); err != nil {
-//     log.Println("Failed to shut down data collector cleanly", err)
-//   }
-// }()
+func (this *Producer) Close() {
+  if err := this.syncProducer.Close(); err != nil {
+    log.Println("Failed to shut down kafka producer cleanly", err)
+  }
+}
