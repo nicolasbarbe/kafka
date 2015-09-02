@@ -9,7 +9,7 @@ import (
 
 
 type producer struct {
-  syncProducer *sarama.SyncProducer
+  syncProducer sarama.SyncProducer
 }
 
 // Constructor
@@ -23,7 +23,7 @@ func newProducer(brokerList []string) *producer {
     panic(err)
   }
 
-  return &producer{ syncProducer : &syncProducer }
+  return &producer{ syncProducer : syncProducer }
 }
 
 func (this *producer) SendEventToTopic( event interface{}, topic string ) error {
