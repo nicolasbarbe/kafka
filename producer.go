@@ -8,12 +8,12 @@ import (
 )
 
 
-type producer struct {
+type Producer struct {
   syncProducer sarama.SyncProducer
 }
 
 // Constructor
-func NewProducer(brokerList []string) *producer {
+func NewProducer(brokerList []string) *Producer {
   config := sarama.NewConfig()
   config.Producer.RequiredAcks = sarama.WaitForAll 
   config.Producer.Retry.Max = 10    
@@ -23,10 +23,10 @@ func NewProducer(brokerList []string) *producer {
     panic(err)
   }
 
-  return &producer{ syncProducer : syncProducer }
+  return &Producer{ syncProducer : syncProducer }
 }
 
-func (this *producer) SendEventToTopic( event interface{}, topic string ) error {
+func (this *Producer) SendEventToTopic( event interface{}, topic string ) error {
   
   // marshal event
   json, err := json.Marshal(event)
