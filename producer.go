@@ -17,7 +17,7 @@ func NewProducer(brokers []string) *Producer {
   config := sarama.NewConfig()
   config.Producer.RequiredAcks = sarama.WaitForAll 
   config.Producer.Retry.Max = 10    
-  
+
   syncProducer, err := sarama.NewSyncProducer(brokers, config)
   if err != nil {
     log.Fatalln("Failed to start Sarama producer:", err)
@@ -35,8 +35,6 @@ func (this *Producer) SendEventToTopic( event interface{}, topic string ) error 
   if err != nil {
     return err
   }
-
-  log.Println(string(json))
 
   // send event
   _, _, err = this.syncProducer.SendMessage(&sarama.ProducerMessage {
