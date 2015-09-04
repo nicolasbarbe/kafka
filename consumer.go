@@ -30,7 +30,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     log.Printf("Failed to get the list of partitions: %s", err)
   }
 
-  log.Printf("%s partitions found for topic %s", len(partitions), topic)
+  log.Printf("%d partitions found for topic %s", len(partitions), topic)
 
   partitionConsumers := make([]sarama.PartitionConsumer, len(partitions))
   messages := make(chan *sarama.ConsumerMessage, bufferSize)
