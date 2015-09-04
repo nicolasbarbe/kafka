@@ -27,10 +27,10 @@ func NewConsumer(brokers []string, topic string) *Consumer {
 
   partitions, err := consumer.Partitions(topic) 
   if err != nil {
-    log.Println("Failed to get the list of partitions: %s", err)
+    log.Printf("Failed to get the list of partitions: %s", err)
   }
 
-  log.Println("%s partitions found", len(partitions))
+  log.Printf("%s partitions found for topic %s", len(partitions), topic)
 
   partitionConsumers := make([]sarama.PartitionConsumer, len(partitions))
   messages := make(chan *sarama.ConsumerMessage, bufferSize)
@@ -40,7 +40,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     partitionConsumer, err := consumer.ConsumePartition(topic, partition, initialOffset)
 
     if err != nil {
-      log.Fatalln("Failed to start consumer for partition %d: %s", partition, err)
+      log.Fatalf("Failed to start consumer for partition %d: %s", partition, err)
     }
 
     go func(partitionConsumer sarama.PartitionConsumer) {
@@ -50,7 +50,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     }(partitionConsumer)
 
   }
-  
+
   return &Consumer{ 
     consumer           : consumer, 
     partitionConsumers : partitionConsumers,
@@ -64,7 +64,7 @@ func (this *Consumer) Consume(processMessage func(key, value []byte)) {
       log.Println("Start consuming messages ...")
 
       for message := range this.messages {
-        log.Println("Process message with offset %s", message.Offset)
+        log.Printf("Process message with offset %s", message.Offset)
         processMessage(message.Key, message.Value)
       }
     }()  
@@ -78,12 +78,12 @@ func (this *Consumer) Close() {
  
   for _, partitionConsumer := range this.partitionConsumers {
     if err := partitionConsumer.Close(); err != nil {
-      log.Println("Failed to close partition consumer: ", err)
+      log.Printf("Failed to close partition consumer: ", err)
     }
   }
 
   if err := this.consumer.Close(); err != nil {
-    log.Println("Failed to shutdown kafka consumer cleanly: %s", err)
+    log.Printf("Failed to shutdown kafka consumer cleanly: %s", err)
   }  
 
   close(this.messages)
