@@ -13,11 +13,12 @@ type Producer struct {
 }
 
 // Constructor
-func NewProducer(brokerList []string) *Producer {
+func NewProducer(brokers []string) *Producer {
   config := sarama.NewConfig()
   config.Producer.RequiredAcks = sarama.WaitForAll 
   config.Producer.Retry.Max = 10    
-  syncProducer, err := sarama.NewSyncProducer(brokerList, config)
+  
+  syncProducer, err := sarama.NewSyncProducer(brokers, config)
   if err != nil {
     log.Fatalln("Failed to start Sarama producer:", err)
     panic(err)
