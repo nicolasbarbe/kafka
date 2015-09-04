@@ -30,6 +30,8 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     log.Println("Failed to get the list of partitions: %s", err)
   }
 
+  log.Println("%s partitions found", len(partitions))
+
   partitionConsumers := make([]sarama.PartitionConsumer, len(partitions))
   messages := make(chan *sarama.ConsumerMessage, bufferSize)
 
@@ -48,7 +50,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     }(partitionConsumer)
 
   }
-
+  
   return &Consumer{ 
     consumer           : consumer, 
     partitionConsumers : partitionConsumers,
@@ -58,11 +60,14 @@ func NewConsumer(brokers []string, topic string) *Consumer {
 
 // Consume messages and process them through the method pass in parameter
 func (this *Consumer) Consume(processMessage func(key, value []byte)) {
-go func() {
-    for message := range this.messages {
-      processMessage(message.Key, message.Value)
-    }
-  }()  
+  go func() {
+      log.Println("Start consuming messages ...")
+
+      for message := range this.messages {
+        log.Println("Process message with offset %s", message.Offset)
+        processMessage(message.Key, message.Value)
+      }
+    }()  
 }
 
 
