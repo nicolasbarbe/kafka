@@ -27,10 +27,10 @@ func NewConsumer(brokers []string, topic string) *Consumer {
 
   partitions, err := consumer.Partitions(topic) 
   if err != nil {
-    log.Printf("Failed to get the list of partitions: %s", err)
+    log.Printf("Failed to get the list of partitions: %v", err)
   }
 
-  log.Printf("%d partitions found for topic %s", len(partitions), topic)
+  log.Printf("%v partitions found for topic %v", len(partitions), topic)
 
   partitionConsumers := make([]sarama.PartitionConsumer, len(partitions))
   messages := make(chan *sarama.ConsumerMessage, bufferSize)
@@ -40,7 +40,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     partitionConsumer, err := consumer.ConsumePartition(topic, partition, initialOffset)
 
     if err != nil {
-      log.Fatalf("Failed to start consumer for partition %d: %s", partition, err)
+      log.Fatalf("Failed to start consumer for partition %v: %v", partition, err)
     }
 
     go func(partitionConsumer sarama.PartitionConsumer) {
@@ -64,7 +64,7 @@ func (this *Consumer) Consume(processMessage func(key, value []byte)) {
       log.Println("Start consuming messages ...")
 
       for message := range this.messages {
-        log.Printf("Process message with offset %s", message.Offset)
+        log.Printf("Process message with offset %v", message.Offset)
         processMessage(message.Key, message.Value)
       }
     }()  
@@ -83,7 +83,7 @@ func (this *Consumer) Close() {
   }
 
   if err := this.consumer.Close(); err != nil {
-    log.Printf("Failed to shutdown kafka consumer cleanly: %s", err)
+    log.Printf("Failed to shutdown kafka consumer cleanly: %v", err)
   }  
 
   close(this.messages)
