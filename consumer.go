@@ -3,6 +3,7 @@ package kafka
 import ( 
         "github.com/Shopify/sarama"
         "encoding/json" 
+        "reflect"
         "bytes"
         "log"
 )
@@ -16,7 +17,6 @@ type Consumer struct {
   consumer           sarama.Consumer
   partitionConsumers []sarama.PartitionConsumer
   messages           chan *sarama.ConsumerMessage
-  Registry           EventTypeRegistry
 }
 
 func NewConsumer(brokers []string, topic string) *Consumer {
@@ -58,12 +58,12 @@ func NewConsumer(brokers []string, topic string) *Consumer {
     consumer           : consumer, 
     partitionConsumers : partitionConsumers,
     messages           : messages,
-    Registry           : NewEventTypeRegistry(),
   }
 }
 
 // Consume messages and process them through the method pass in parameter
-func (this *Consumer) Consume(processEvent func(interface{})) {
+func (this *Consumer) Consume(eventType reflect.Type, processEvent func(interface{})) {
+  
   go func() {
       log.Println("Start consuming messages ...")
 
@@ -72,13 +72,12 @@ func (this *Consumer) Consume(processEvent func(interface{})) {
 
         b := bytes.SplitAfterN(message.Value[:], []byte {44}, 1)
 
-        eventType  := string(b[0][:])
-        event, err := this.Registry.GetType(eventType)
-        if err != nil {
-          log.Println("Cannot find event type %v in the registry", eventType)
+        eventTypeFromMessage  := string(b[0][:])
+        if eventType.Name() != eventTypeFromMessage {
           continue
         }
 
+        event := reflect.New(eventType).Elem().Interface()
         if err := json.Unmarshal(b[1], event) ; err != nil {
           log.Println("Cannot read event : ", err)
           continue
