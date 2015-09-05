@@ -70,16 +70,16 @@ func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}
       for message := range this.messages {
         log.Printf("Received message with offset %v", message.Offset)
 
-        b := bytes.SplitAfterN(message.Value[:], []byte{','}, 1)
+        idx := bytes.Index(message.Value, []byte{','})
 
-        eventTypeFromMessage  := string(b[0])
+        eventTypeFromMessage := string(message.Value[:idx])
         if eventType.Name() != eventTypeFromMessage {
-          log.Printf("Message with type %v is ignored", string(b[0]))
+          log.Printf("Message with type %v is ignored", eventTypeFromMessage)
           continue
         }
 
         event := factory()
-        if err := json.Unmarshal(b[1], event) ; err != nil {
+        if err := json.Unmarshal(message.Value[idx+1:], event) ; err != nil {
           log.Println("Cannot read event : ", err)
           continue
         }
