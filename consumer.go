@@ -68,12 +68,13 @@ func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}
       log.Println("Start consuming messages ...")
 
       for message := range this.messages {
-        log.Printf("Process message with offset %v", message.Offset)
+        log.Printf("Received message with offset %v", message.Offset)
 
         b := bytes.SplitAfterN(message.Value[:], []byte {44}, 1)
 
         eventTypeFromMessage  := string(b[0][:])
         if eventType.Name() != eventTypeFromMessage {
+          log.Printf("Message with type %v is ignored", string(b[0][:]))
           continue
         }
 
@@ -82,6 +83,8 @@ func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}
           log.Println("Cannot read event : ", err)
           continue
         }
+
+        log.Printf("Process message with offset %v", message.Offset)
 
         processEvent(event)
       }
