@@ -74,7 +74,7 @@ func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}
 
         eventTypeFromMessage := string(message.Value[:idx])
         if eventType.Name() != eventTypeFromMessage {
-          log.Printf("Message with type %v is ignored", eventTypeFromMessage)
+          log.Printf("Message with type %v is ignored. Type %v was expected", eventTypeFromMessage, eventType.Name())
           continue
         }
 
