@@ -62,7 +62,7 @@ func NewConsumer(brokers []string, topic string) *Consumer {
 }
 
 // Consume messages and process them through the method pass in parameter
-func (this *Consumer) Consume(eventType reflect.Type, processEvent func(interface{})) {
+func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}, processEvent func(interface{})) {
   
   go func() {
       log.Println("Start consuming messages ...")
@@ -77,7 +77,7 @@ func (this *Consumer) Consume(eventType reflect.Type, processEvent func(interfac
           continue
         }
 
-        event := reflect.New(eventType).Elem().Interface()
+        event := factory()
         if err := json.Unmarshal(b[1], event) ; err != nil {
           log.Println("Cannot read event : ", err)
           continue
