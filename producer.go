@@ -24,7 +24,9 @@ func NewProducer(brokers []string) *Producer {
     panic(err)
   }
 
-  return &Producer{ syncProducer : syncProducer }
+  return &Producer{ 
+    syncProducer : syncProducer,
+  }
 }
 
 func (this *Producer) SendEventToTopic( event interface{}, topic string ) error {
