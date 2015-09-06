@@ -2,15 +2,12 @@ package kafka
 
 import ( 
         "github.com/Shopify/sarama"
-        "encoding/json" 
-        "reflect"
-        "bytes"
         "log"
 )
 
 const (
   bufferSize     = 256
-  initialOffset  = sarama.OffsetOldest // always start listening for the latest event. 
+  initialOffset  = sarama.OffsetOldest // always start listening for the latest message. 
 )
 
 type Consumer struct {
@@ -62,31 +59,14 @@ func NewConsumer(brokers []string, topic string) *Consumer {
 }
 
 // Consume messages and process them through the method pass in parameter
-func (this *Consumer) Consume(eventType reflect.Type, factory func() interface{}, processEvent func(interface{})) {
+func (this *Consumer) Consume(processMessage func([]byte)) {
   
   go func() {
       log.Println("Start consuming messages ...")
 
       for message := range this.messages {
         log.Printf("Received message with offset %v", message.Offset)
-
-        idx := bytes.Index(message.Value, []byte{','})
-
-        eventTypeFromMessage := string(message.Value[:idx])
-        if eventType.Name() != eventTypeFromMessage {
-          log.Printf("Message with type %v is ignored. Type %v was expected", eventTypeFromMessage, eventType.Name())
-          continue
-        }
-
-        event := factory()
-        if err := json.Unmarshal(message.Value[idx+1:], event) ; err != nil {
-          log.Println("Cannot read event : ", err)
-          continue
-        }
-
-        log.Printf("Process message with offset %v", message.Offset)
-
-        processEvent(event)
+        processMessage(message.Value)
       }
     }()  
 }

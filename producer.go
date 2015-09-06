@@ -2,8 +2,6 @@ package kafka
 
 import ( 
         "github.com/Shopify/sarama"
-        "encoding/json" 
-        "reflect"
         "log"
 )
 
@@ -29,26 +27,20 @@ func NewProducer(brokers []string) *Producer {
   }
 }
 
-func (this *Producer) SendEventToTopic( event interface{}, topic string ) error {
+func (this *Producer) SendMessageToTopic( message string, topic string ) error {
   
-  // marshal event
-  json, err := json.Marshal(event)
   
-  if err != nil {
-    return err
-  }
-
-  // send event
-  _, _, err = this.syncProducer.SendMessage(&sarama.ProducerMessage {
+  // send message
+  _, _, err := this.syncProducer.SendMessage(&sarama.ProducerMessage {
       Topic: topic,
-      Value: sarama.StringEncoder(reflect.TypeOf(event).Name() + "," + string(json)),
+      Value: sarama.StringEncoder(message),
     })
 
   if err != nil {
     return err
   }
 
-  log.Println("event sent")
+  log.Println("message sent")
   return nil
 }
 
