@@ -27,13 +27,13 @@ func NewProducer(brokers []string) *Producer {
   }
 }
 
-func (this *Producer) SendMessageToTopic( message string, topic string ) error {
+func (this *Producer) SendMessageToTopic( message []byte, topic string ) error {
   
   
   // send message
   _, _, err := this.syncProducer.SendMessage(&sarama.ProducerMessage {
       Topic: topic,
-      Value: sarama.StringEncoder(message),
+      Value: sarama.ByteEncoder(message),
     })
 
   if err != nil {
