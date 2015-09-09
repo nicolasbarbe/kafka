@@ -65,7 +65,7 @@ func (this *Consumer) Consume(processMessage func([]byte)) {
       log.Println("Start consuming messages ...")
 
       for message := range this.messages {
-        log.Printf("Received message with offset %v", message.Offset)
+        log.Printf("Received message from topic %v and partition %v with offset %v", message.Topic, message.Partition, message.Offset)
         processMessage(message.Value)
       }
     }()  
