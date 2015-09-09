@@ -7,7 +7,7 @@ import (
 
 const (
   bufferSize     = 256
-  initialOffset  = sarama.OffsetOldest // always start listening for the latest message. 
+  initialOffset  = sarama.OffsetOldest // always start listening for the oldes message. 
 )
 
 type Consumer struct {
@@ -67,6 +67,9 @@ func (this *Consumer) Consume(processMessage func([]byte)) {
       for message := range this.messages {
         log.Printf("Received message from topic %v and partition %v with offset %v", message.Topic, message.Partition, message.Offset)
         processMessage(message.Value)
+
+        defer log.Println("Exiting consumer loop")
+
       }
     }()  
 }
